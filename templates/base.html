@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul>
+            <li> <div class="logo"> <a class="active" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='logo.png') }}" width="50px"/></a>Happy Bread PDF Editor </div></li>
+            <li style="float:right"><a href="{{ url_for('encrypt') }}">Encrypt</a></li>
+            <li style="float:right"><a href="/">Decrypt</a></li>
+            <li style="float:right"><a href="/">Merge</a></li>
+            <li style="float:right"><a href="/">Split</a></li>
+        </ul>
+    </nav>  <!-- End of Navigation Bar -->
+    <div class="page">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

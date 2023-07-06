@@ -1,0 +1,5 @@
+venv
+.vscode
+testpdfs
+uploads
+__pycache__
