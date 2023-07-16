@@ -8,14 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
     <title>{{ title }}</title>
+    {% block header %}{% endblock %}
 </head>
 <body>
+    <div class="progress" style="height: 3px; background-color: white;">
+        <div class="indeterminate" style="background-color: red;"></div>
+    </div>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
             <li> <div class="logo"> <a class="active" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='logo.png') }}" width="50px"/></a>Happy Bread PDF Editor </div></li>
             <li style="float:right"><a href="{{ url_for('encrypt') }}">Encrypt</a></li>
-            <li style="float:right"><a href="/">Decrypt</a></li>
             <li style="float:right"><a href="/">Merge</a></li>
             <li style="float:right"><a href="/">Split</a></li>
         </ul>

@@ -4,6 +4,10 @@
   {{ title }}
 {% endblock %}
 
+{% block header %}
+<script src="https://unpkg.com/htmx.org@1.7.0"></script>
+{% endblock %}
+
 {% block content %}
   {% with messages = get_flashed_messages() %}
    {% if messages %}
@@ -13,18 +17,21 @@
    {% endif %}
 {% endwith %}
 <h1>Encrypt your file!</h1>
-<div class="container-borderless">
-  <img src="https://media.giphy.com/media/xYEYXCt93QZTP5adXQ/giphy.gif" alt="this slowpoke moves"  width="250"/>
-</div>
+Session ID {{ thread_id }} </br>
 
-<form method=post enctype=multipart/form-data>
+<form method=post enctype=multipart/form-data> 
   <div class="container">
     <h3>Step 1: Choose a File</h3>
     <input type="file" name="file" required>
     <h3>Step 2: Give your PDF a nice password to encrypt it with</h3>
-    <input type="text" name="Password">
-    <input class="mybutton" type=submit value=Encrypt!>
+    <input type="password" name="Password">
+    <input class="mybutton" type=submit value=Encrypt! hx-indicator="#poller">
+    <p id="output_api"></p>
   </div>
 </form>
   
+<p id="poller" hidden hx-get="/getprogress/{{ title }}/{{ thread_id }}" hx-target="#output_api" hx-trigger="every 1s">Chuck Joke</p>
+
+
+
 {% endblock %}
