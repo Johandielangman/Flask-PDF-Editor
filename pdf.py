@@ -1,10 +1,11 @@
 from PyPDF2 import PdfReader, PdfWriter
 class PDF():
-    def __init__(self, filepath) -> None:
-        self.reader = PdfReader(filepath)
-        if not self.reader.is_encrypted:
-            self.meta = self.reader.metadata
-        self.filepath = ".".join(filepath.split(".")[:-1])
+    def __init__(self, filepath=None) -> None:
+        if filepath:
+            self.reader = PdfReader(filepath)
+            if not self.reader.is_encrypted:
+                self.meta = self.reader.metadata
+            self.filepath = ".".join(filepath.split(".")[:-1])
 
 
     def save_pdf(self, writer, filepath):
@@ -40,3 +41,12 @@ class PDF():
 
         # Save the new PDF to a file
         self.save_pdf(writer, f'{self.filepath}_decrypted.pdf')
+
+    def merge(self, files):        
+        merger = PdfWriter()
+        # Add all pages to the writer
+        for pdf in files:
+            merger.append(pdf)
+
+        # Save the new PDF to a file
+        self.save_pdf(merger, "uploads/merged.pdf")

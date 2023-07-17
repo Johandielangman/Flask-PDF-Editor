@@ -16,16 +16,13 @@
       {% endfor %}
    {% endif %}
 {% endwith %}
-<h1>Encrypt your file!</h1>
-Session ID {{ thread_id }} </br>
-
+<h1>Merge your files!</h1>
+<p>Your session ID: {{ thread_id }}</p>
 <form method=post enctype=multipart/form-data> 
   <div class="container">
-    <h3>Step 1: Choose a File</h3>
-    <input type="file" name="file" required>
-    <h3>Step 2: Give your PDF a nice password to encrypt it with</h3>
-    <input type="password" name="Password" required>
-    <input class="mybutton" type=submit value=Encrypt!>
+    <h3>Step 1: Choose your files</h3>
+    <input type="file" name="file" required multiple>
+    <input class="mybutton" type=submit value=Merge! hx-indicator="#poller">
     <p id="output_api"></p>
   </div>
 </form>
