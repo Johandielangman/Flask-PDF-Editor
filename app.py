@@ -195,7 +195,6 @@ def merge(title="Merge"):
         # Get the list of files from webpage
         files = request.files.getlist("file")
         files_filepath_list = []
-        download_file_path_list = []
         # Iterate for each file in the files List, and Save them
         for file in files:
             filename = f'{thread_id}_{secure_filename(file.filename)}'

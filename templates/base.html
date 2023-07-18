@@ -11,11 +11,8 @@
     {% block header %}{% endblock %}
 </head>
 <body>
-    <div class="progress" style="height: 3px; background-color: white;">
-        <div class="indeterminate" style="background-color: red;"></div>
-    </div>
     <!-- Navigation Bar -->
-    <nav class="navbar">
+    <div class="navbar" data-role="navbar">
         <ul>
             <li> <div class="logo"> <a class="logo" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='logo.png') }}" width="50px"/></a>Happy Bread PDF Editor </div></li>
             <li style="float:right"><a href="{{ url_for('encrypt') }}">Encrypt</a></li>
@@ -23,9 +20,10 @@
             <li style="float:right"><a href="{{ url_for('merge') }}">Merge</a></li>
             <li style="float:right"><a href="/">Split</a></li>
         </ul>
-    </nav>  <!-- End of Navigation Bar -->
+    </div>
     <div class="page">
         {% block content %}{% endblock %}
     </div>
 </body>
+{% block footer %}{% endblock %}
 </html>
