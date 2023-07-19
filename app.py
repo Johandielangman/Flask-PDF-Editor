@@ -82,7 +82,7 @@ def print_progress_bar(progress):
   empty_bars = bar_width - filled_bars
   if progress == 0:
       return ""
-  return ("[%s%s] %d%%" % ("▓" * filled_bars, "░" * empty_bars, progress))
+  return ("%s%s %d%%" % ("█" * filled_bars, "▒" * empty_bars, progress))
 
 def clear_uploads():
     files = glob.glob(f'{app.config["UPLOAD_FOLDER"]}/*')
