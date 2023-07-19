@@ -17,19 +17,18 @@
    {% endif %}
 {% endwith %}
 <h1 class="block-effect" style="--td: 0.5s">
-  <div class="block-reveal" style="--bc: linear-gradient(to right, rgb(4,170,109,0.5), rgb(4,170,109,1)); --d: .1s">Merge your PDFs!</div>
+  <div class="block-reveal" style="--bc: linear-gradient(to right, rgb(4,170,109,0.5), rgb(4,170,109,1)); --d: .1s">Split your PDFs!</div>
 </h1>
-<form method=post enctype=multipart/form-data> 
-  <div class="radius">
-    <div class="container">
-      <h3>Choose your files and merge!</h3>
-      <input type="file" name="file" required multiple>
-      <button> <span>Merge!</span></button>
-      <p id="output_api"></p>
-    </div>
+<div class="radius">
+  <div class="container">
+    <h2>Coming soon...</h2>
+    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzJrYWRyeXY5d3Y2dDlnamFiczcxbnA2dHFkdWphNTNrY212YnppbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/Qhg5vbmLB0iszYoktc/giphy.gif" alt="Working"  height="200">
   </div>
-</form>
-<p>Your session ID: {{ thread_id }}</p>
+</div>
+
+
+
+<!-- <p>Your session ID: {{ thread_id }}</p> -->
 <p id="poller" hidden hx-get="/getprogress/{{ title }}/{{ thread_id }}" hx-target="#output_api" hx-trigger="every 1s">Chuck Joke</p>
 
 {% endblock %}

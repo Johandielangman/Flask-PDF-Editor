@@ -53,6 +53,15 @@ class MergePDF(threading.Thread):
         workingfile = PDF()
         workingfile.merge(self.files)
 
+class SplitPDF(threading.Thread):
+    
+    def __init__(self, thread_id, files):
+        self.thread_id = thread_id
+        super().__init__()
+
+    def run(self):
+        pass
+
 ######################################################################################
 # APP FUNCTIONS
 ######################################################################################
@@ -98,9 +107,10 @@ polling_count = {}
 polling_count["Encrypt"] = {"cnt": 0}
 polling_count["Decrypt"] = {"cnt": 0}
 polling_count["Merge"] = {"cnt": 0}
+polling_count["Split"] = {"cnt": 0}
 polling_timeout = 1000 #s
 @app.route("/")
-def home(title="Index"):
+def home(title="Happy Bread PDF Editor"):
     global job_dictionary, polling_count
     clear_uploads()
     session['uid'] = uuid.uuid4()
@@ -211,6 +221,14 @@ def merge(title="Merge"):
         return send_file(os.path.join(app.config['UPLOAD_FOLDER'], "merged.pdf") , as_attachment=True, download_name="merged.pdf")
     return render_template('tools/merge.html', title=title, thread_id=thread_id)
 
+@app.route("/split", methods=['GET', 'POST'])
+def split(title="Split"):
+    global job_dictionary
+    thread_id = str(session['uid'])
+    job_dictionary[title] = {}
+    job_dictionary[title][thread_id] = {"progress": 0, "thread_info": None, "status":200}
+
+    return render_template('tools/split.html', title=title, thread_id=thread_id)
 
 @app.route("/getprogress/<string:title>/<string:id>")
 def getprogress(id, title):

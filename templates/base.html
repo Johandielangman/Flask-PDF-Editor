@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="keywords" content="PDF, PDF Editor, Editor, Merge, Decrypt, Encrypt, Free, Tool, Bread">
+    <meta name="description" content="Edit your PDFs with Happy Bread PDF Editor!">
+    <meta name="author" content="Mr Happy Bread">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>{{ title }}</title>
     {% block header %}{% endblock %}
 </head>
@@ -18,12 +22,16 @@
             <li style="float:right"><a href="{{ url_for('encrypt') }}">Encrypt</a></li>
             <li style="float:right"><a href="{{ url_for('decrypt') }}">Decrypt</a></li>
             <li style="float:right"><a href="{{ url_for('merge') }}">Merge</a></li>
-            <li style="float:right"><a href="/">Split</a></li>
+            <li style="float:right"><a href="{{ url_for('split') }}">Split</a></li>
         </ul>
     </div>
     <div class="page">
         {% block content %}{% endblock %}
     </div>
 </body>
-{% block footer %}{% endblock %}
+{% block footer %}
+<div class="train">
+    <img src="{{ url_for('static', filename='toasty-the-walking-toast.gif') }}" alt="Working"  height="40">
+</div>
+{% endblock %}
 </html>
