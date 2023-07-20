@@ -9,13 +9,6 @@
 {% endblock %}
 
 {% block content %}
-  {% with messages = get_flashed_messages() %}
-   {% if messages %}
-      {% for message in messages %}
-         {{ message }}
-      {% endfor %}
-   {% endif %}
-{% endwith %}
 <h1 class="block-effect" style="--td: 0.5s">
   <div class="block-reveal" style="--bc: linear-gradient(to right, rgb(4,170,109,0.5), rgb(4,170,109,1)); --d: .1s">Merge your PDFs!</div>
 </h1>

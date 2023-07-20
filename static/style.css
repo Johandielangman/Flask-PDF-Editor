@@ -296,3 +296,40 @@ button {
   color: #04AA6D;
   font-weight: bold;
 }
+
+
+.col{
+  position: relative;
+  width: 100%;
+  justify-content: center;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 3px solid rgba(0,0,0,.125);
+  border-radius: 0.25rem;
+  width: 20vw;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  column-gap: 20px;
+  justify-content: center;
+}
+
+/* Responsive layout - makes a one column layout instead of a two-column layout */
+@media (max-width: 800px) {
+  .flex-container {
+    flex-direction: column;
+  }
+  .card {
+    width: 80vw;
+  }
+}

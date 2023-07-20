@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ title }}
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<h1>Whoopsie!</h1>
+<h2>This page is not found</h2>
+<div class="container-borderless">
+    <img src="{{ url_for('static', filename='sad-bread.gif') }}" alt="Working"  height="400">
+</div>
+{% endblock %}

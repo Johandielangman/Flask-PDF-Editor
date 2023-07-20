@@ -1,4 +1,8 @@
-from flask import (Flask, flash, request, redirect, url_for, render_template, send_file, send_from_directory, session,Response)
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any
+from flask import (Flask, flash, request, redirect, url_for, render_template, send_file, session, Response)
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
 import os
 from werkzeug.utils import secure_filename
 from urllib.parse import urlparse
@@ -11,6 +15,7 @@ import glob
 
 UPLOAD_FOLDER = '.\\uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 ######################################################################################
 # CLASS THREADS
@@ -27,7 +32,7 @@ class EncryptPDF(threading.Thread):
     def run(self):
         full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], self.filename)
         workingfile = PDF(full_file_path)
-        workingfile.encrypt(self.password)
+        self.result = workingfile.encrypt(self.password)
 
 class DecryptPDF(threading.Thread):
     
@@ -40,7 +45,7 @@ class DecryptPDF(threading.Thread):
     def run(self):
         full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], self.filename)
         workingfile = PDF(full_file_path)
-        workingfile.decrypt(self.password)
+        self.result = workingfile.decrypt(self.password)
 
 class MergePDF(threading.Thread):
     
@@ -51,7 +56,7 @@ class MergePDF(threading.Thread):
 
     def run(self):
         workingfile = PDF()
-        workingfile.merge(self.files)
+        self.result = workingfile.merge(self.files)        
 
 class SplitPDF(threading.Thread):
     
@@ -90,25 +95,49 @@ def clear_uploads():
         print(f'Removing file: {f}')
         os.remove(f)
 
+def update_stats(pdf_func):
+    stat = Stats(pdf_func=pdf_func)
+    db.session.add(stat)
+    db.session.commit()
+
 ######################################################################################
 # APP SETTINGS
 ######################################################################################
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+        'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'super secret key'
-
-######################################################################################
-# PAGE ROUTES
-######################################################################################
+db = SQLAlchemy(app)
 
 job_dictionary = {}
+
 polling_count = {}
 polling_count["Encrypt"] = {"cnt": 0}
 polling_count["Decrypt"] = {"cnt": 0}
 polling_count["Merge"] = {"cnt": 0}
 polling_count["Split"] = {"cnt": 0}
 polling_timeout = 1000 #s
+
+######################################################################################
+# DATABASE
+######################################################################################
+
+class Stats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pdf_func = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True),
+                           server_default=func.now())
+
+    def __repr__(self):
+        return f'<pdf_func {self.pdf_func}>'
+
+######################################################################################
+# PAGE ROUTES
+######################################################################################
+
 @app.route("/")
 def home(title="Happy Bread PDF Editor"):
     global job_dictionary, polling_count
@@ -148,9 +177,12 @@ def encrypt(title="Encrypt"):
             job_dictionary[title][thread_id]["thread_info"].join()
             job_dictionary[title][thread_id]["progress"] = 90
             download_file_path = app.config['UPLOAD_FOLDER'] + "\\" + ".".join(filename.split(".")[:-1])+"_encrypted.pdf"
-            job_dictionary[title][thread_id]["progress"] = 100
+            job_dictionary[title][thread_id]["progress"] = 99
+            time.sleep(1)
+            update_stats(pdf_func="Encrypt")
             time.sleep(3)
             job_dictionary[title][thread_id]["status"] = 286
+            job_dictionary[title][thread_id]["progress"] = 100
             return send_file(download_file_path , as_attachment=True, download_name=f'encrypted_{filename.replace(thread_id,"")}')
     return render_template('tools/encrypt.html', title=title, thread_id=thread_id)
 
@@ -175,20 +207,31 @@ def decrypt(title="Decrypt"):
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):   
-            filename = f'{thread_id}_{secure_filename(file.filename)}'
-            full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(full_file_path)     
-            job_dictionary[title][thread_id]["progress"] = 75
-            job_dictionary[title][thread_id]["thread_info"] = DecryptPDF(thread_id, filename=filename, password=request.form["Password"])
-            job_dictionary[title][thread_id]["thread_info"].start()
-            job_dictionary[title][thread_id]["thread_info"].join()
-            job_dictionary[title][thread_id]["progress"] = 90
-            download_file_path = app.config['UPLOAD_FOLDER'] + "\\" + ".".join(filename.split(".")[:-1])+"_decrypted.pdf"
-            job_dictionary[title][thread_id]["progress"] = 100
-            time.sleep(3)
-            job_dictionary[title][thread_id]["status"] = 286
-            return send_file(download_file_path , as_attachment=True, download_name=f'decrypted_{filename.replace(thread_id,"")}')
+        if file and allowed_file(file.filename):
+            try:   
+                filename = f'{thread_id}_{secure_filename(file.filename)}'
+                full_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(full_file_path)     
+                job_dictionary[title][thread_id]["progress"] = 75
+                job_dictionary[title][thread_id]["thread_info"] = DecryptPDF(thread_id, filename=filename, password=request.form["Password"])
+                job_dictionary[title][thread_id]["thread_info"].start()
+                job_dictionary[title][thread_id]["thread_info"].join()
+                if isinstance(job_dictionary[title][thread_id]["thread_info"].result, Exception):
+                    raise job_dictionary[title][thread_id]["thread_info"].result
+                job_dictionary[title][thread_id]["progress"] = 90
+                download_file_path = app.config['UPLOAD_FOLDER'] + "\\" + ".".join(filename.split(".")[:-1])+"_decrypted.pdf"
+                job_dictionary[title][thread_id]["progress"] = 99
+                time.sleep(1)
+                update_stats(pdf_func="Decrypt")
+                time.sleep(3)
+                job_dictionary[title][thread_id]["status"] = 286
+                job_dictionary[title][thread_id]["progress"] = 100
+                return send_file(download_file_path , as_attachment=True, download_name=f'decrypted_{filename.replace(thread_id,"")}')
+            except Exception as e:
+                job_dictionary[title][thread_id]["progress"] = 0
+                job_dictionary[title][thread_id]["status"] = 286
+                flash(f'Something went wrong: {e}')
+                return redirect(request.url)
     return render_template('tools/decrypt.html', title=title, thread_id=thread_id)
 
 @app.route("/merge", methods=['GET', 'POST'])
@@ -215,9 +258,12 @@ def merge(title="Merge"):
         job_dictionary[title][thread_id]["thread_info"] = MergePDF(thread_id, files=files_filepath_list)
         job_dictionary[title][thread_id]["thread_info"].start()
         job_dictionary[title][thread_id]["thread_info"].join()
-        job_dictionary[title][thread_id]["progress"] = 100
+        job_dictionary[title][thread_id]["progress"] = 99
+        time.sleep(1)
+        update_stats(pdf_func="Merge")
         time.sleep(3)
         job_dictionary[title][thread_id]["status"] = 286
+        job_dictionary[title][thread_id]["progress"] = 100
         return send_file(os.path.join(app.config['UPLOAD_FOLDER'], "merged.pdf") , as_attachment=True, download_name="merged.pdf")
     return render_template('tools/merge.html', title=title, thread_id=thread_id)
 
@@ -241,11 +287,38 @@ def getprogress(id, title):
     polling_count[title]["cnt"] += 1
     return Response(print_progress_bar(progress), status=status, mimetype='application/text')
 
+# ...
+
+@app.route('/getstats_merge')
+def getstats_merge():
+    merge_cnt = len(Stats.query.filter_by(pdf_func="Merge").all())
+    return f'{merge_cnt:,}'
+
+@app.route('/getstats_encrypt')
+def getstats_encrypt():
+    encrypt_cnt = len(Stats.query.filter_by(pdf_func="Encrypt").all())
+    return f'{encrypt_cnt:,}'
+
+@app.route('/getstats_decrypt')
+def getstats_decrypt():
+    decrypt = len(Stats.query.filter_by(pdf_func="Decrypt").all())
+    return f'{decrypt:,}'
+
+@app.errorhandler(404)
+def page_not_found(title="404"):
+    # note that we set the 404 status explicitly
+    return render_template('404.html', title=title), 404
+
+@app.errorhandler(500)
+def page_not_found(title="500"):
+    return render_template('500.html', title=title), 500
+
 ######################################################################################
 # MAIN
 ######################################################################################
 
 if __name__ == "__main__":
+    # flask --app app run
     app.run(host="127.0.0.1",
             port=5000,
             debug=True)

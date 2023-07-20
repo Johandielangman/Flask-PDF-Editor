@@ -28,6 +28,15 @@
     <div class="page">
         {% block content %}{% endblock %}
     </div>
+    <div class="flash">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
 </body>
 {% block footer %}
 <div class="train">
