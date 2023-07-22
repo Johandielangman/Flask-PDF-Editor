@@ -43,4 +43,12 @@
     <img src="{{ url_for('static', filename='toasty-the-walking-toast.gif') }}" alt="Working"  height="40">
 </div>
 {% endblock %}
+<div style="position: fixed; bottom: 6vh; right: 5vw;">
+    <a href="{{ url_for('performance') }}">
+        <button title="Server Performance" 
+    class="btn btn-primary btn-circle btn-circle-lg effect1">
+        <span>i</span>
+    </button>
+    </a>
+</div>
 </html>

@@ -12,6 +12,7 @@
 <h1 class="block-effect" style="--td: 0.5s">
   <div class="block-reveal" style="--bc: linear-gradient(to right, rgb(4,170,109,0.5), rgb(4,170,109,1)); --d: .1s">Merge your PDFs!</div>
 </h1>
+<p>Combine PDFs in the order you want! The merge sequence is determined by the order in which you select ("Ctrl+Click") your files</p>
 <form method=post enctype=multipart/form-data> 
   <div class="radius">
     <div class="container">
@@ -22,7 +23,14 @@
     </div>
   </div>
 </form>
-<p>Your session ID: {{ thread_id }}</p>
+<p></p>
+<div style="display: flex; justify-content: space-evenly;">
+  <div>Server Network (Upload): <p id="network_sent"></p></div>
+  <div>Server Network (Download): <p id="network_received"></p></div>
+</div>
+<p id="poller" hidden hx-get="/network-sent" hx-target="#network_sent" hx-trigger="every 1s">Chuck Joke</p>
+<p id="poller" hidden hx-get="/network-received" hx-target="#network_received" hx-trigger="every 1s">Chuck Joke</p>
 <p id="poller" hidden hx-get="/getprogress/{{ title }}/{{ thread_id }}" hx-target="#output_api" hx-trigger="every 1s">Chuck Joke</p>
+
 
 {% endblock %}

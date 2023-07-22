@@ -1,6 +1,11 @@
 from collections.abc import Callable, Iterable, Mapping
+import psutil
 from typing import Any
-from flask import (Flask, flash, request, redirect, url_for, render_template, send_file, session, Response)
+from flask import (Flask, flash, request, redirect, url_for, render_template, send_file, session, Response, stream_with_context)
+import json
+import random
+import time
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 import os
@@ -267,6 +272,11 @@ def merge(title="Merge"):
         return send_file(os.path.join(app.config['UPLOAD_FOLDER'], "merged.pdf") , as_attachment=True, download_name="merged.pdf")
     return render_template('tools/merge.html', title=title, thread_id=thread_id)
 
+@app.route("/performance", methods=['GET'])
+def performance(title="Performance"):
+    thread_id = str(session['uid'])
+    return render_template('tools/performance.html', title=title, thread_id=thread_id)
+
 @app.route("/split", methods=['GET', 'POST'])
 def split(title="Split"):
     global job_dictionary
@@ -303,6 +313,34 @@ def getstats_encrypt():
 def getstats_decrypt():
     decrypt = len(Stats.query.filter_by(pdf_func="Decrypt").all())
     return f'{decrypt:,}'
+
+@app.route('/chart-data')
+def chart_data():
+    def generate_random_data():
+        while True:
+            json_data = json.dumps(
+                {'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'value': psutil.cpu_percent(interval=1)})
+            yield f"data:{json_data}\n\n"
+            time.sleep(1)
+
+    response = Response(stream_with_context(generate_random_data()), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
+    return response
+
+@app.route('/network-sent')
+def network_sent():
+    bytes_sent_MB_1 = psutil.net_io_counters()[0]/1000
+    time.sleep(1)
+    bytes_sent_MB_2 = psutil.net_io_counters()[0]/1000
+    return str(round(bytes_sent_MB_2-bytes_sent_MB_1, 2)) + " kB/s"
+
+@app.route('/network-received')
+def network_received():
+    bytes_received_MB_1 = psutil.net_io_counters()[1]/1000
+    time.sleep(1)
+    bytes_received_MB_2 = psutil.net_io_counters()[1]/1000
+    return str(round(bytes_received_MB_2-bytes_received_MB_1, 2)) + " kB/s"
 
 @app.errorhandler(404)
 def page_not_found(title="404"):

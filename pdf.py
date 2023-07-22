@@ -57,6 +57,7 @@ class PDF():
         try:
             merger = PdfWriter()
             # Add all pages to the writer
+            files.reverse()
             for pdf in files:
                 merger.append(pdf)
 
