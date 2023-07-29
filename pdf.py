@@ -36,7 +36,7 @@ class PDF():
                 print("Detected file is encrypted. Decrypting...")
                 result = self.reader.decrypt(password)
 
-                if result.NOT_DECRYPTED == 0:
+                if result.OWNER_PASSWORD!=2:
                     return FileNotDecryptedError('Please make sure your password is correct')
             else:
                 print("File is not encrypted")

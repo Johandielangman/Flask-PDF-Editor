@@ -20,13 +20,22 @@
       <input type="file" name="file" required multiple>
       <button> <span>Merge!</span></button>
       <p id="output_api"></p>
+      <div class="flash">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
     </div>
   </div>
 </form>
 <p></p>
 <div style="display: flex; justify-content: space-evenly;">
-  <div>Server Network (Upload): <p id="network_sent"></p></div>
-  <div>Server Network (Download): <p id="network_received"></p></div>
+  <div>Server Network ⇧: <p id="network_sent"></p></div>
+  <div>Server Network ⇩: <p id="network_received"></p></div>
 </div>
 <p id="poller" hidden hx-get="/network-sent" hx-target="#network_sent" hx-trigger="every 1s">Chuck Joke</p>
 <p id="poller" hidden hx-get="/network-received" hx-target="#network_received" hx-trigger="every 1s">Chuck Joke</p>

@@ -1,4 +1,3 @@
-from collections.abc import Callable, Iterable, Mapping
 import psutil
 from typing import Any
 from flask import (Flask, flash, request, redirect, url_for, render_template, send_file, session, Response, stream_with_context)
@@ -10,7 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 import os
 from werkzeug.utils import secure_filename
-from urllib.parse import urlparse
 from pdf import PDF
 import random
 import threading
